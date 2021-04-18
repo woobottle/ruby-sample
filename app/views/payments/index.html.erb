@@ -1,24 +1,53 @@
 <section>
-  <h1>구매하기</h1>
-  <img src="/images/toss-tee.png" style="max-width: 100%" />
-  <h3>토스 티셔츠</h3>
-  <span>19,000 원</span>
-  <button id="payment-button">결제하기</button>
+  <div class="container mx-auto bd-white">
+    <h1 class="stick top-0 text-center text-blue-500 font-bold text-xl">구매하기</h1>
+    <div class="justify-center mx-8">
+      <img src="/images/toss-tee.png" style="max-width: 100%; width:100%;" alt="상품이미지"/>
+    </div>
+    <div class="flex mx-8 justify-between">
+      <div class="text-blue-500 font-bold text-lg">토스 티셔츠</div>
+      <div class="font-bold text-lg">19,000 원</div>
+    </div>
+    <div class="flex mx-8 justify-end m-3 space-x-20">
+      <%= select_tag "결제방식", options_for_select([ ["카드", "cards"], ["가상계좌", "virtual_accounts"], ["휴대폰", "phones"], ["문화상품권", "gift_cards"], ["게임문화상품권", "gift_cards"], ["도서문화상품권", "gift_cards"] ], "cards"), id: "payment-method", class:"text-blue-500 font-bold text-lg" %>
+      <button id="payment-button" class="p-3 text-white bg-blue-500 rounded-lg">결제하기</button>
+    </div>
+  </div>
+  <!-- , "빌링(자동결제)결제" -->
 </section>
-<script src="https://js.tosspayments.com/v1"></script>
+
 <script>
-  var tossPayments = TossPayments("test_ck_JQbgMGZzorzzXdypGB7rl5E1em4d");
+  const tossPayments = TossPayments("test_ck_OyL0qZ4G1VOqLlzOLDB8oWb2MQYg")
+  const button = document.getElementById("payment-button");
+  const paymentSelector = document.getElementById("payment-method");
 
-  var button = document.getElementById("payment-button");
+  let paymentName = "카드";
+  let paymentMethod = "cards";
+  let options =  {
+    amount: 30,
+    orderId: "<%= @order_id %>",
+    orderName: "토스 티셔츠",
+    customerName: "<%= @customer_name %>",
+    successUrl: `${window.location.origin}/${paymentMethod}/success`,
+    failUrl: `${window.location.origin}/${paymentMethod}/fail`,
+  }
+  
+  paymentSelector.addEventListener("change", () => {
+    paymentName = paymentSelector.options[paymentSelector.selectedIndex].text;
+    paymentMethod = paymentSelector.value;
+  })
 
-  button.addEventListener("click", function () {
-    tossPayments.requestPayment("카드", {
-      amount: 19000,
-      orderId: "<%= @order_id %>",
-      orderName: "토스 티셔츠",
-      customerName: "<%= @customer_name %>",
-      successUrl: window.location.origin + "/success",
-      failUrl: window.location.origin + "/fail",
-    });
-  });
+  button.addEventListener("click", () => {
+    if(paymentName === "가상계좌") {
+      options = {
+        ...options,
+        virtualAccountCallbackUrl: `${window.location.origin}/${paymentMethod}/callback`,
+        validHours: 12
+      };
+    }
+    tossPayments.requestPayment(`${paymentName}`, options);
+  })
+
 </script>
+
+
