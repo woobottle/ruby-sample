@@ -7,7 +7,7 @@ class CardsController < ApplicationController
   def success
     options = {
       headers: {
-        Authorization: "Basic " + Base64.strict_encode64("test_sk_jkYG57Eba3G5j9yPkalrpWDOxmA1:"),
+        Authorization: "Basic " + Base64.strict_encode64("test_sk_jkYG57Eba3G5j9yPkalrpWDOxmA1" + ":"), # secret key + ":" 해서 인코딩
         "Content-Type": "application/json"
       },
       body: {
